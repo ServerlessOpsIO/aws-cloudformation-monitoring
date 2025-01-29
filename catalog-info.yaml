@@ -1,0 +1,13 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: aws-cloudformation-monitoring
+  description: AWS CloudFormation Monitoring
+  annotations:
+    github.com/project-slug: ServerlessOpsIO/aws-cloudformation-monitoring
+spec:
+  type: cloud-config
+  lifecycle: production
+  owner: group:0319y80a3hmm9y7
+  system: system:infrastructure-services

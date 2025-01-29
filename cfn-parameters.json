@@ -1,0 +1,6 @@
+{
+    "ObservabilityOuIds": $secrets.AWS_ORG_OBSERVABILITY_OU,
+    "OrganizationId": $secrets.AWS_ORG_ID,
+    "TargetOuIds": $secrets.AWS_ORG_ROOT_ID,
+    "TargetRegions": "us-east-1"
+}

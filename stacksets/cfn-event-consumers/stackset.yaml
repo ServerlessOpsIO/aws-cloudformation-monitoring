@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Receive Cloudformation events
+
+Parameters:
+  OrganizationId:
+    Type: String
+    Description: "ID of AWS organization"
+
+Resources:
+  CfnMonitoringEventBus:
+    Type: "AWS::Events::EventBus"
+    Properties:
+      Name: "CfnMonitoringEventBus"
+
+  EventBusPolicy:
+    Type: "AWS::Events::EventBusPolicy"
+    Properties:
+      EventBusName: !Ref CfnMonitoringEventBus
+      StatementId: "AllowOrgEvents"
+      Action: "events:PutEvents"
+      Principal: "*"
+      Condition:
+        Type: "StringEquals"
+        Key: "aws:PrincipalOrgID"
+        Value: !Ref OrganizationId
+
+  CfnEventsLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: "/aws/events/cloudformation-monitoring"
+      RetentionInDays: 7
+
+  CfnEventsRule:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Description: "Send CFN events to monitoring account"
+      EventBusName: !Ref CfnMonitoringEventBus
+      EventPattern:
+        source:
+          - "aws.cloudformation"
+      State: "ENABLED"
+      Targets:
+        - Id: CloudWatchLogs
+          Arn: !GetAtt CfnEventsLogGroup.Arn

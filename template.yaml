@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS Cloudformation Monitoring StackSets
+
+Metadata:
+  EventConsumer:
+    localTemplateFile: &event_consumer_template_body ./stacksets/cfn-event-consumers/stackset.yaml
+
+Parameters:
+  ObservabilityOuIds:
+    Type: CommaDelimitedList
+    Description: Target deployment OU IDs
+  OrganizationId:
+    Type: String
+    Description: ID of AWS organization
+  TargetRegions:
+    Type: CommaDelimitedList
+    Description: Target deployment region
+
+Resources:
+  CfnEventConsumerStackSet:
+    Type: AWS::CloudFormation::StackSet
+    Properties:
+      StackSetName: CfnMonitoringEventConsumer
+      Description: CFN Monitoring Event Consumer
+      Parameters:
+        - ParameterKey: OrganizationId
+          ParameterValue: !Ref OrganizationId
+      StackInstancesGroup:
+        - DeploymentTargets:
+            OrganizationalUnitIds: !Ref ObservabilityOuIds
+          Regions: !Ref TargetRegions
+      AutoDeployment:
+        Enabled: true
+        RetainStacksOnAccountRemoval: false
+      ManagedExecution:
+        Active: true
+      OperationPreferences:
+        RegionConcurrencyType: PARALLEL
+        FailureToleranceCount: 1
+        MaxConcurrentCount: 5
+      PermissionModel: SERVICE_MANAGED
+      Capabilities:
+        - CAPABILITY_IAM
+      TemplateBody: *event_consumer_template_body
+
