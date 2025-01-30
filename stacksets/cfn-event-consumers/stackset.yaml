@@ -5,12 +5,15 @@ Parameters:
   OrganizationId:
     Type: String
     Description: "ID of AWS organization"
+  EventBusName:
+    Type: String
+    Description: "Name of the event bus"
 
 Resources:
   CfnMonitoringEventBus:
     Type: "AWS::Events::EventBus"
     Properties:
-      Name: "CfnMonitoringEventBus"
+      Name: !Ref EventBusName
 
   EventBusPolicy:
     Type: "AWS::Events::EventBusPolicy"

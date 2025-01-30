@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Ship Cloudformation events to monitoring account
+
+Parameters:
+  EventBusName:
+    Type: String
+    Description: "Name of the event bus"
+  EventBusAccount:
+    Type: String
+    Description: "Account ID of the event bus"
+  EventBusRegion:
+    Type: String
+    Description: "Region of the event bus"
+
+Resources:
+  CfnEventRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Description: "Send CFN events to monitoring account"
+      EventPattern:
+        source:
+          - "aws.cloudformation"
+      State: "ENABLED"
+      Targets:
+        - Id: MonitoringBus
+          Arn: !Sub "arn:aws:events:${EventBusRegion}:${EventBusAccount}:event-bus/${EventBusName}"

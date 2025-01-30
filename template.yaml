@@ -4,17 +4,28 @@ Description: AWS Cloudformation Monitoring StackSets
 Metadata:
   EventConsumer:
     localTemplateFile: &event_consumer_template_body ./stacksets/cfn-event-consumers/stackset.yaml
+  EventProducer:
+    localTemplateFile: &event_producer_template_body ./stacksets/cfn-event-producers/stackset.yaml
 
 Parameters:
   ObservabilityOuIds:
     Type: CommaDelimitedList
     Description: Target deployment OU IDs
+  ObservabilityAccountId:
+    Type: String
+    Description: ID of AWS account
   OrganizationId:
     Type: String
     Description: ID of AWS organization
+  TargetOuIds:
+    Type: CommaDelimitedList
+    Description: List of OUs
   TargetRegions:
     Type: CommaDelimitedList
     Description: Target deployment region
+  EventBusName:
+    Type: String
+    Description: Name of the event bus
 
 Resources:
   CfnEventConsumerStackSet:
@@ -25,6 +36,8 @@ Resources:
       Parameters:
         - ParameterKey: OrganizationId
           ParameterValue: !Ref OrganizationId
+        - ParameterKey: EventBusName
+          ParameterValue: !Ref EventBusName
       StackInstancesGroup:
         - DeploymentTargets:
             OrganizationalUnitIds: !Ref ObservabilityOuIds
@@ -42,4 +55,34 @@ Resources:
       Capabilities:
         - CAPABILITY_IAM
       TemplateBody: *event_consumer_template_body
+
+  CfnEventProducerStackSet:
+    Type: AWS::CloudFormation::StackSet
+    Properties:
+      StackSetName: CfnMonitoringEventProducer
+      Description: CFN Monitoring Event Producer
+      Parameters:
+        - ParameterKey: EventBusName
+          ParameterValue: !Ref EventBusName
+        - ParameterKey: EventBusAccount
+          ParameterValue: !Ref ObservabilityAccountId
+        - ParameterKey: EventBusRegion
+          ParameterValue: us-east-1
+      StackInstancesGroup:
+        - DeploymentTargets:
+            OrganizationalUnitIds: !Ref TargetOuIds
+          Regions: !Ref TargetRegions
+      AutoDeployment:
+        Enabled: true
+        RetainStacksOnAccountRemoval: false
+      ManagedExecution:
+        Active: true
+      OperationPreferences:
+        RegionConcurrencyType: PARALLEL
+        FailureToleranceCount: 1
+        MaxConcurrentCount: 5
+      PermissionModel: SERVICE_MANAGED
+      Capabilities:
+        - CAPABILITY_IAM
+      TemplateBody: *event_producer_template_body
 
