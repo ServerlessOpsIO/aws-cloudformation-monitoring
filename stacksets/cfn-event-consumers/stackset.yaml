@@ -36,7 +36,7 @@ Resources:
   CfnEventsRule:
     Type: "AWS::Events::Rule"
     Properties:
-      Description: "Send CFN events to monitoring account"
+      Description: "Log CFN events"
       EventBusName: !Ref CfnMonitoringEventBus
       EventPattern:
         source:
