@@ -24,3 +24,23 @@ Resources:
       Targets:
         - Id: MonitoringBus
           Arn: !Sub "arn:aws:events:${EventBusRegion}:${EventBusAccount}:event-bus/${EventBusName}"
+          RoleArn: !GetAtt CfnEventsRole.Arn
+
+  CfnEventsRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service: 'events.amazonaws.com'
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'PutEventsPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action: 'events:PutEvents'
+                Resource: !Sub "arn:aws:events:${EventBusRegion}:${EventBusAccount}:event-bus/${EventBusName}"
