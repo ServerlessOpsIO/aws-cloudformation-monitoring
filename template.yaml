@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 Description: AWS Cloudformation Monitoring StackSets
 
 Metadata:
@@ -86,3 +87,11 @@ Resources:
         - CAPABILITY_IAM
       TemplateBody: *event_producer_template_body
 
+  CfnEventProducerStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: "./stacksets/cfn-event-producers/stackset.yaml"
+      Parameters:
+        EventBusName: !Ref EventBusName
+        EventBusAccount: !Ref ObservabilityAccountId
+        EventBusRegion: us-east-1
